@@ -29,7 +29,6 @@ defmodule CostoEnvioCliente do
     end
   end
 
-  # cond para determinar la tarifa base
   defp tarifa_base(peso) do
     cond do
       peso <= 1 -> 8000
@@ -38,22 +37,18 @@ defmodule CostoEnvioCliente do
     end
   end
 
-  # pattern matching con átomos para el descuento
   defp calcular_descuento(base, :corporativo), do: base * 0.15
   defp calcular_descuento(base, :estudiante), do: base * 0.10
   defp calcular_descuento(base, :regular), do: 0
 
-  # pattern matching con átomos para el recargo
   defp calcular_recargo(subtotal, :express), do: subtotal * 0.25
   defp calcular_recargo(_subtotal, :estandar), do: 0
 
-  # mapping de número a átomo (cliente)
   defp cliente_atom(1), do: :corporativo
   defp cliente_atom(2), do: :estudiante
   defp cliente_atom(3), do: :regular
   defp cliente_atom(_), do: :regular
 
-  # mapping de número a átomo (servicio)
   defp servicio_atom(1), do: :express
   defp servicio_atom(2), do: :estandar
   defp servicio_atom(_), do: :estandar

@@ -1,5 +1,4 @@
 defmodule Cine do
-  # Definimos el mapa inicial con salas y sillas disponibles
   def salas do
     %{
       1 => 50,
@@ -8,7 +7,6 @@ defmodule Cine do
     }
   end
 
-  # Función para reservar sillas
   def reservar_sillas(salas, sala_num, cantidad) do
     case Map.fetch(salas, sala_num) do
       :error ->
@@ -27,7 +25,6 @@ defmodule Cine do
   end
 end
 
-# Uso
 salas = Cine.salas()
 IO.inspect(salas)
 

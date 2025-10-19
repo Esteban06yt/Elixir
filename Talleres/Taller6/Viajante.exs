@@ -7,15 +7,26 @@ defmodule Viajante do
   ]
 
   def resolver() do
-    ciudades = Enum.to_list(1..(length(@distancias) - 1))
-    {camino, distancia} = backtrack([0], ciudades, 0, :infinity)
-    IO.puts("Mejor ruta: #{inspect(camino ++ [0])}")
-    IO.puts("Distancia mínima: #{distancia}")
+    todas = Enum.to_list(0..(length(@distancias) - 1))
+    {mejor_camino_final, mejor_distancia_final} =
+      Enum.reduce(todas, {[], :infinity}, fn inicio, {mejor_camino_global, mejor_dist_global} ->
+        restantes = List.delete(todas, inicio)
+        {camino, dist} = backtrack([inicio], restantes, 0, :infinity)
+        if dist < mejor_dist_global do
+          {camino, dist}
+        else
+          {mejor_camino_global, mejor_dist_global}
+        end
+      end)
+
+    IO.puts("Mejor ruta iniciando en cualquier ciudad: #{inspect(mejor_camino_final ++ [hd(mejor_camino_final)])}")
+    IO.puts("Distancia mínima: #{mejor_distancia_final}")
   end
 
   defp backtrack(actual_camino, [], distancia_actual, mejor_distancia) do
-    distancia_total = distancia_actual + d(List.last(actual_camino), 0)
-    IO.puts("Ruta posible: #{inspect(actual_camino ++ [0])} | Distancia: #{distancia_total}")
+    inicio = hd(actual_camino)
+    distancia_total = distancia_actual + d(List.last(actual_camino), inicio)
+    IO.puts("Ruta posible: #{inspect(actual_camino ++ [inicio])} | Distancia: #{distancia_total}")
     if distancia_total < mejor_distancia do
       {actual_camino, distancia_total}
     else

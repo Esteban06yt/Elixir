@@ -15,11 +15,9 @@ defmodule NodoServidor do
   defp registrar_servicio(nombre_servicio_local),
     do: Process.register(self(), nombre_servicio_local)
 
-  # Loop principal con estado (autores y trabajos)
   defp procesar_mensajes(state) do
     receive do
       {productor, {:list_trabajos}} ->
-        # enviar sólo resumen (id, fecha, titulo)
         trabajos_resumen = Enum.map(state.trabajos, fn t ->
           %{id: t.id, fecha: t.fecha, titulo: t.titulo}
         end)
@@ -35,7 +33,7 @@ defmodule NodoServidor do
               autores =
                 trabajo.autores
                 |> Enum.map(fn cedula -> Map.get(state.autores, cedula) end)
-                |> Enum.filter(& &1) # eliminar nil si hay inconsistencias
+                |> Enum.filter(& &1)
               {:autores_list, trabajo, autores}
           end
 
@@ -47,30 +45,26 @@ defmodule NodoServidor do
         :ok
 
       other ->
-        # mensajes desconocidos
         IO.puts("Servidor: mensaje desconocido recibido: #{inspect(other)}")
         procesar_mensajes(state)
     end
   end
 
-  # Buscar trabajo por id o por título (coincidencia exacta o por índice)
   defp buscar_trabajo(trabajos, identificador) when is_integer(identificador) do
     Enum.at(trabajos, identificador)
   end
 
   defp buscar_trabajo(trabajos, identificador) do
-    # probar id exacto string
     found = Enum.find(trabajos, fn t -> t.id == to_string(identificador) end)
     if found, do: found, else:
       Enum.find(trabajos, fn t -> String.downcase(t.titulo) == String.downcase(to_string(identificador)) end)
   end
 
-  # CARGA CSV
   defp cargar_autores(path) do
     path
     |> File.read!()
     |> String.split("\n", trim: true)
-    |> Enum.drop(1) # quitar header
+    |> Enum.drop(1)
     |> Enum.map(&String.trim/1)
     |> Enum.filter(&(&1 != ""))
     |> Enum.map(fn line ->
@@ -95,10 +89,7 @@ defmodule NodoServidor do
     |> Enum.map(&String.trim/1)
     |> Enum.filter(&(&1 != ""))
     |> Enum.map(fn line ->
-      # id,fecha,titulo,descripcion,autores (cedulas separadas por |)
-      # NOTA: si la descripcion o título contienen comas, esto simple split fallará.
       parts = String.split(line, ",", trim: true)
-      # asumir formato correcto (5 columnas)
       [id, fecha, titulo, descripcion, autores_str] = parts
       autores = autores_str |> String.split("|", trim: true)
       %{

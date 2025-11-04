@@ -1,0 +1,2 @@
+iex --sname nodoservidor@localhost --cookie my-cookie NodoServidor.exs
+iex --sname nodocliente@cliente --cookie my-cookie NodoCliente.exs
